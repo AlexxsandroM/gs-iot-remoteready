@@ -38,14 +38,50 @@ Responda em português do Brasil, de forma simples e objetiva.
 """
 
 
-async def ask_remote_coach(user_message: str) -> str:
+def _build_personalized_prompt(user_context: dict = None) -> str:
+    """Constrói um prompt personalizado baseado no contexto do usuário"""
+    if not user_context:
+        return SYSTEM_PROMPT
+    
+    personalized = SYSTEM_PROMPT + "\n\n=== CONTEXTO DO USUÁRIO ===\n"
+    
+    if user_context.get('nome'):
+        personalized += f"Nome: {user_context['nome']}\n"
+    
+    if user_context.get('perfil'):
+        perfil = user_context['perfil']
+        if perfil == 'JUNIOR':
+            personalized += "Nível: Júnior (iniciante na carreira)\n"
+            personalized += "Dica: Adapte suas respostas para alguém começando, seja mais didático e explique conceitos básicos.\n"
+        elif perfil == 'PLENO':
+            personalized += "Nível: Pleno (experiência intermediária)\n"
+            personalized += "Dica: O usuário já tem conhecimento básico, pode ir direto ao ponto.\n"
+        elif perfil == 'SENIOR':
+            personalized += "Nível: Sênior (experiência avançada)\n"
+            personalized += "Dica: Forneça insights avançados e estratégicos.\n"
+    
+    if user_context.get('experiencia') is not None:
+        anos = user_context['experiencia']
+        personalized += f"Experiência: {anos} ano(s) de trabalho\n"
+    
+    if user_context.get('avaliacao'):
+        personalized += f"Avaliação na plataforma: {user_context['avaliacao']:.1f}/5.0\n"
+    
+    personalized += "\nUse essas informações para personalizar sua resposta de acordo com o perfil e experiência do usuário.\n"
+    
+    return personalized
+
+
+async def ask_remote_coach(user_message: str, user_context: dict = None) -> str:
     if not AI_API_KEY:
         raise RuntimeError("AI_API_KEY não configurada no .env")
+
+    system_prompt = _build_personalized_prompt(user_context)
 
     payload = {
         "model": AI_MODEL_NAME,
         "messages": [
-            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message},
         ],
         "temperature": AI_TEMPERATURE,
