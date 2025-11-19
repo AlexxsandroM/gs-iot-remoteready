@@ -4,6 +4,9 @@ RemoteCoach API - Global Solution
 **Nome:** Alexsandro Macedo  
 **RM:** 557068
 
+**Nome:** Leonardo Salazar  
+**RM:** 557484
+
 ## Descrição do Projeto
 
 Este projeto foi desenvolvido como parte da **Global Solution (GS)**, apresentando uma API FastAPI para chatbot especializado em trabalho remoto e produtividade. O sistema integra com a API da Groq (LLM) e mantém histórico de conversas em banco de dados **Oracle SQL**, oferecendo orientações personalizadas sobre equilíbrio vida pessoal/profissional em regime híbrido.
@@ -233,18 +236,3 @@ WHERE FL_ATIVO = 'Y';
 3. Prompt é personalizado baseado no perfil
 4. IA gera resposta contextualizada
 5. Conversa é salva em `TB_GS_CHAT_HISTORY`
-
-## Possíveis Melhorias Futuras
-
-- [ ] Autenticação JWT para usuários
-- [ ] Cache Redis para respostas frequentes
-- [ ] Análise de sentimento das mensagens
-- [ ] Dashboard para métricas de uso
-- [ ] Deploy em cloud (AWS/Azure/GCP)
-- [ ] Incluir histórico recente no contexto da conversa
-- [ ] Suporte a múltiplos idiomas
-- [ ] Webhooks para notificações
-
----
-**Alexsandro Macedo - RM: 557068**  
-**Global Solution - 2025**
