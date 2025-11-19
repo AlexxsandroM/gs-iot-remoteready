@@ -73,19 +73,23 @@ def init_oracle_db():
         raise Exception(f"Erro ao conectar com Oracle: {e}")
 
 def save_message_oracle(user_id: int, user_message: str, bot_answer: str):
-    """Salva uma mensagem do chat na tabela TB_GS_CHAT_HISTORY"""
+    """Salva uma mensagem do chat na tabela TB_GS_CHAT_HISTORY usando a procedure PRC_INSERIR_CHAT_HISTORY"""
     with get_oracle_conn() as conn:
         cur = conn.cursor()
-        cur.execute("""
-            INSERT INTO TB_GS_CHAT_HISTORY (ID_USUARIO, DS_PROMPT, DS_RESPONSE, DT_CRIACAO)
-            VALUES (:id_usuario, :ds_prompt, :ds_response, :dt_criacao)
-        """, {
-            'id_usuario': user_id,
-            'ds_prompt': user_message,
-            'ds_response': bot_answer,
-            'dt_criacao': datetime.now()
-        })
+        
+        # Variável de saída para receber o ID gerado
+        id_chat = cur.var(int)
+        
+        # Chama a procedure do package
+        cur.callproc('PKG_REMOTEREADY.PRC_INSERIR_CHAT_HISTORY', [
+            user_id,           # P_ID_USUARIO
+            user_message,      # P_PROMPT
+            bot_answer,        # P_RESPONSE
+            id_chat            # P_ID_OUT
+        ])
+        
         conn.commit()
+        return id_chat.getvalue()[0]
 
 def get_user_history(user_id: int, limit: int = 10):
     """Recupera o histórico de conversas de um usuário da tabela TB_GS_CHAT_HISTORY"""
@@ -144,3 +148,41 @@ def get_user_info(user_id: int):
             'data_criacao': row[7],
             'ativo': row[8]
         }
+
+def save_message_async(user_id: int, user_message: str) -> int:
+    """
+    Salva mensagem inicial (prompt) sem resposta usando PRC_INSERIR_CHAT_HISTORY.
+    Retorna o ID do chat criado para posterior atualização.
+    """
+    with get_oracle_conn() as conn:
+        cur = conn.cursor()
+        
+        # Variável de saída para receber o ID gerado
+        id_chat = cur.var(int)
+        
+        # Chama a procedure com resposta NULL (será preenchida depois)
+        cur.callproc('PKG_REMOTEREADY.PRC_INSERIR_CHAT_HISTORY', [
+            user_id,           # P_ID_USUARIO
+            user_message,      # P_PROMPT
+            None,              # P_RESPONSE (NULL - será atualizado depois)
+            id_chat            # P_ID_OUT
+        ])
+        
+        conn.commit()
+        return id_chat.getvalue()[0]
+
+def update_chat_response(chat_id: int, bot_answer: str):
+    """
+    Atualiza a resposta do chat usando PRC_ATUALIZAR_CHAT_RESPONSE.
+    Usado quando a resposta é gerada de forma assíncrona.
+    """
+    with get_oracle_conn() as conn:
+        cur = conn.cursor()
+        
+        # Chama a procedure para atualizar a resposta
+        cur.callproc('PKG_REMOTEREADY.PRC_ATUALIZAR_CHAT_RESPONSE', [
+            chat_id,           # P_ID_CHAT
+            bot_answer         # P_RESPONSE
+        ])
+        
+        conn.commit()
