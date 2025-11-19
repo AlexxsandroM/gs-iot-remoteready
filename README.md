@@ -1,11 +1,20 @@
 RemoteCoach API - Global Solution
 =====================================
 
+[![Deploy on Render](https://img.shields.io/badge/Deploy-Render-46E3B7?style=flat&logo=render)](https://gs-iot-remoteready.onrender.com/docs)
+[![API Status](https://img.shields.io/badge/API-Online-success)](https://gs-iot-remoteready.onrender.com/docs)
+
 **Nome:** Alexsandro Macedo  
 **RM:** 557068
 
 **Nome:** Leonardo Salazar  
 **RM:** 557484
+
+## 🚀 Acesso Rápido
+
+- **API em Produção:** [https://gs-iot-remoteready.onrender.com](https://gs-iot-remoteready.onrender.com)
+- **Documentação Interativa (Swagger):** [https://gs-iot-remoteready.onrender.com/docs](https://gs-iot-remoteready.onrender.com/docs)
+- **Documentação Alternativa (ReDoc):** [https://gs-iot-remoteready.onrender.com/redoc](https://gs-iot-remoteready.onrender.com/redoc)
 
 ## Descrição do Projeto
 
@@ -97,7 +106,13 @@ A API estará disponível em: `http://127.0.0.1:8000`
 
 ## Documentação da API
 
-Acesse a documentação interativa em: `http://127.0.0.1:8000/docs`
+### Produção (Render)
+- **Swagger UI:** [https://gs-iot-remoteready.onrender.com/docs](https://gs-iot-remoteready.onrender.com/docs)
+- **ReDoc:** [https://gs-iot-remoteready.onrender.com/redoc](https://gs-iot-remoteready.onrender.com/redoc)
+
+### Local
+- **Swagger UI:** `http://127.0.0.1:8000/docs`
+- **ReDoc:** `http://127.0.0.1:8000/redoc`
 
 ## Testando a API
 
@@ -105,8 +120,17 @@ Acesse a documentação interativa em: `http://127.0.0.1:8000/docs`
 
 **IMPORTANTE:** O `user_id` deve existir na tabela `TB_GS_USUARIO` do Oracle.
 
+#### Produção (Render)
 ```powershell
-# Enviar mensagem (user_id deve existir no banco)
+# Enviar mensagem para API em produção
+Invoke-RestMethod -Uri "https://gs-iot-remoteready.onrender.com/chat" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"user_id": 1, "message": "Como melhorar meu foco em home office?"}'```
+
+#### Local
+```powershell
+# Enviar mensagem para API local
 Invoke-RestMethod -Uri "http://localhost:8000/chat" `
   -Method POST `
   -ContentType "application/json" `
@@ -122,8 +146,16 @@ Invoke-RestMethod -Uri "http://localhost:8000/chat" `
 
 ### 2. Endpoint de Histórico (GET /chat/history/{user_id})
 
+#### Produção (Render)
 ```powershell
-# Buscar histórico das últimas 10 conversas
+# Buscar histórico em produção
+Invoke-RestMethod -Uri "https://gs-iot-remoteready.onrender.com/chat/history/1?limit=10" `
+  -Method GET
+```
+
+#### Local
+```powershell
+# Buscar histórico local
 Invoke-RestMethod -Uri "http://localhost:8000/chat/history/1?limit=10" `
   -Method GET
 ```
@@ -217,6 +249,41 @@ SELECT ID_USUARIO, NM_USUARIO, TP_PERFIL, NR_EXPERIENCIA
 FROM TB_GS_USUARIO
 WHERE FL_ATIVO = 'Y';
 ```
+
+## 🌐 Deploy em Produção
+
+### Render.com
+
+A aplicação está deployada no Render com as seguintes configurações:
+
+**URLs de Produção:**
+- Base URL: `https://gs-iot-remoteready.onrender.com`
+- Documentação: `https://gs-iot-remoteready.onrender.com/docs`
+- Endpoint Chat: `https://gs-iot-remoteready.onrender.com/chat`
+- Histórico: `https://gs-iot-remoteready.onrender.com/chat/history/{user_id}`
+
+**Configurações do Render:**
+- **Build Command:** `pip install -r requirements.txt`
+- **Start Command:** `uvicorn app.main:app --host 0.0.0.0 --port $PORT`
+- **Environment:** Python 3
+- **Plan:** Free Tier
+
+**Variáveis de Ambiente (Render Dashboard):**
+```
+ORACLE_USER=seu_usuario
+ORACLE_PASSWORD=sua_senha
+ORACLE_DSN=seu_dsn_oracle
+AI_API_KEY=sua_chave_groq
+AI_API_URL=https://api.groq.com/openai/v1/chat/completions
+AI_MODEL_NAME=llama-3.1-8b-instant
+AI_TEMPERATURE=0.7
+AI_MAX_TOKENS=512
+```
+
+**⚠️ Nota sobre Free Tier:**
+- A primeira requisição pode demorar ~50s (cold start)
+- Após 15 minutos de inatividade, o servidor hiberna
+- Recomendado para testes e desenvolvimento
 
 ## Integração com Banco de Dados
 
