@@ -15,6 +15,7 @@ RemoteCoach API - Global Solution
 - **API em Produção:** [https://gs-iot-remoteready.onrender.com](https://gs-iot-remoteready.onrender.com)
 - **Documentação Interativa (Swagger):** [https://gs-iot-remoteready.onrender.com/docs](https://gs-iot-remoteready.onrender.com/docs)
 - **Documentação Alternativa (ReDoc):** [https://gs-iot-remoteready.onrender.com/redoc](https://gs-iot-remoteready.onrender.com/redoc)
+- **Vídeo de Demonstração:** [https://youtu.be/nLnIIBl2jQs](https://youtu.be/nLnIIBl2jQs)
 
 ## Descrição do Projeto
 
